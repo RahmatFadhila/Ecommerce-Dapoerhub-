@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}DapoerHub - Connecting Great Food, Great Events{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION - MODERN DESIGN -->
+<section class="hero">
+    <div class="hero-container">
+        <!-- Left Side - Large Main Image -->
+        <div class="hero-image-main">
+            <img src="{% static 'img/mainfoto.jpg' %}" alt="Main Food Display" loading="lazy">
+            <div class="hero-image-overlay"></div>
+        </div>
+        
+        <!-- Right Side - Content -->
+        <div class="hero-content">
+            <!-- Hero Badge -->
+            <div class="hero-badge">
+                <i class="fas fa-star"></i>
+                <span>Platform Catering Terpercaya</span>
+            </div>
+            
+            <!-- Text Content -->
+            <div class="hero-text">
+                <h1>Connecting Great Food,<br><span class="highlight">Great Events</span></h1>
+                <p class="hero-description">DapoerHub adalah platform e-commerce catering yang menyediakan layanan catering profesional dengan brand dan operasional kami sendiri. DapoerHub bertanggung jawab penuh atas kualitas makanan, pelayanan, dan pengalaman pelanggan dari awal hingga akhir.</p>
+                
+                <!-- Stats -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Pelanggan Puas</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-utensils"></i>
+                        <div>
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Menu Pilihan</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <div>
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">Acara Sukses</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gallery Images -->
+            <div class="hero-images-small">
+                <img src="{% static 'img/main1.jpg' %}" alt="Food Item 1" class="small-img" loading="lazy">
+                <img src="{% static 'img/main2.jpg' %}" alt="Food Item 2" class="small-img" loading="lazy">
+                <img src="{% static 'img/main3.jpg' %}" alt="Food Item 3" class="small-img" loading="lazy">
+            </div>
+            
+            
+    </div>
+</section>
+
+<!-- PRODUCTS SECTION - ENHANCED -->
+<section class="products-section">
+    <div class="products-container">
+        <!-- Section Header with Decoration -->
+        <div class="section-header">
+            <span class="section-subtitle">Menu Catering</span>
+            <h2>Menu Pilihan Kami</h2>
+            <p>Nikmati berbagai pilihan menu catering terbaik untuk acara Anda</p>
+            <div class="section-divider"></div>
+        </div>
+
+        <!-- Filter Tabs - Enhanced -->
+        <div class="product-filters">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-th"></i>
+                <span>Semua Menu</span>
+            </button>
+            {% for category in categories %}
+            <button class="filter-btn" data-filter="{{ category.name|lower }}">
+                <i class="fas fa-utensils"></i>
+                <span>{{ category.name }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card" data-category="{{ product.category.name|lower }}">
+                <div class="product-image">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    {% else %}
+                    <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}" 
+                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=400&fit=crop'" 
+                         loading="lazy">
+                    {% endif %}
+                    
+                    <!-- Product Badge -->
+                    {% if forloop.counter <= 3 %}
+                    <div class="product-badge">
+                        <i class="fas fa-fire"></i> Populer
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Quick View Overlay -->
+                    <div class="product-overlay">
+                        <a href="{% url 'product_detail' product.pk %}" class="quick-view-btn">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <!-- Category Tag -->
+                    <span class="product-category">{{ product.category.name }}</span>
+                    
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-desc">{{ product.description|truncatewords:12 }}</p>
+                    
+                    <!-- Rating -->
+                    <div class="product-rating">
+                        {% with avg_rating=product.get_average_rating review_count=product.get_review_count %}
+                            {% if review_count > 0 %}
+                                {% with full_stars=avg_rating|floatformat:0|add:"0" %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= full_stars %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter|add:"-1" < avg_rating and avg_rating < forloop.counter %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                                <span class="rating-text">{{ avg_rating|floatformat:1 }} <span class="review-count">({{ review_count }})</span></span>
+                            {% else %}
+                                {% for i in "12345" %}
+                                    <i class="far fa-star"></i>
+                                {% endfor %}
+                                <span class="rating-text">Belum ada review</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    
+                    <!-- Price & Button -->
+                    <div class="product-footer">
+                        <div class="product-price-wrapper">
+                            <span class="price-label">Mulai dari</span>
+                            <span class="product-price">{{ product.price|rupiah }}</span>
+                            <span class="price-unit">/porsi</span>
+                        </div>
+                        <a href="{% url 'product_detail' product.pk %}" class="btn-primary btn-small">
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h3>Belum Ada Produk</h3>
+                <p>Produk catering akan segera tersedia</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- View All Button - Enhanced -->
+        <div class="view-all-wrapper">
+            <a href="{% url 'menu' %}" class="btn-view-all">
+                <span>Lihat Semua Menu</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US SECTION -->
+<section class="features-section">
+    <div class="features-container">
+        <div class="section-header">
+            <span class="section-subtitle">Kenapa DapoerHub?</span>
+            <h2>Keunggulan Kami</h2>
+            <div class="section-divider"></div>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Kualitas Terjamin</h3>
+                <p>Bahan segar dan proses pengolahan yang higienis</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>Pengiriman Tepat Waktu</h3>
+                <p>Garansi ketepatan waktu pengiriman untuk acara Anda</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>Layanan 24/7</h3>
+                <p>Tim customer service siap membantu kapan saja</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3>Harga Kompetitif</h3>
+                <p>Harga terbaik dengan kualitas premium</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}

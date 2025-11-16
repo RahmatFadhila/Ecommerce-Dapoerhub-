@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Menu Catering - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="menu-section">
+    <div class="menu-container">
+        <!-- Page Header -->
+        <div class="menu-header">
+            <h1>Menu Catering Kami</h1>
+            <p>Pilihan menu catering terbaik untuk berbagai acara Anda</p>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all" aria-label="Tampilkan semua menu">
+                <i class="fas fa-th" aria-hidden="true"></i>
+                <span>Semua Menu</span>
+            </button>
+            {% for category in categories %}
+            <button class="category-btn" 
+                    data-category="{{ category.name|lower }}" 
+                    aria-label="Filter kategori {{ category.name }}">
+                <i class="fas fa-utensils" aria-hidden="true"></i>
+                <span>{{ category.name }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Menu Grid -->
+        <div class="menu-grid">
+            {% for product in products %}
+            <article class="menu-card" data-category="{{ product.category.name|lower }}">
+                <!-- Product Image -->
+                <div class="menu-image">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" 
+                         alt="{{ product.name }}" 
+                         class="menu-img">
+                    {% else %}
+                    <img src="{% static 'img/default-product.jpg' %}" 
+                         alt="{{ product.name }}" 
+                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=400&fit=crop'" 
+                         class="menu-img">
+                    {% endif %}
+                    
+                    <!-- Popular Badge -->
+                    {% if forloop.counter <= 3 %}
+                    <div class="menu-badge">
+                        <i class="fas fa-fire" aria-hidden="true"></i> Populer
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Product Info -->
+                <div class="menu-info">
+                    <span class="menu-category-tag">{{ product.category.name }}</span>
+                    
+                    <h3 class="menu-title">{{ product.name }}</h3>
+                    <p class="menu-desc">
+                        {% if product.description %}
+                            {{ product.description|truncatewords:15 }}
+                        {% else %}
+                            Menu catering lezat dengan bahan berkualitas tinggi
+                        {% endif %}
+                    </p>
+                    
+                   
+                    
+                    <!-- Rating Section -->
+                    <div class="menu-rating" aria-label="Rating produk">
+                        {% with avg_rating=product.get_average_rating review_count=product.get_review_count %}
+                            {% if review_count > 0 %}
+                                {% with full_stars=avg_rating|floatformat:0|add:"0" %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= full_stars %}
+                                            <i class="fas fa-star" aria-hidden="true"></i>
+                                        {% elif forloop.counter|add:"-1" < avg_rating and avg_rating < forloop.counter %}
+                                            <i class="fas fa-star-half-alt" aria-hidden="true"></i>
+                                        {% else %}
+                                            <i class="far fa-star" aria-hidden="true"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                                <span class="rating-count">
+                                    {{ avg_rating|floatformat:1 }} 
+                                    <span style="color: #999; font-weight: 400;">({{ review_count }})</span>
+                                </span>
+                            {% else %}
+                                {% for i in "12345" %}
+                                    <i class="far fa-star" aria-hidden="true"></i>
+                                {% endfor %}
+                                <span class="rating-count">Belum ada review</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    
+                    <!-- Order Button -->
+  <div class="product-footer">
+                        <div class="product-price-wrapper">
+                            <span class="price-label">Mulai dari</span>
+                            <span class="product-price">{{ product.price|rupiah }}</span>
+                            <span class="price-unit">/porsi</span>
+                        </div>
+                        <a href="{% url 'product_detail' product.pk %}" class="btn-primary btn-small">
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-utensils" aria-hidden="true"></i>
+                </div>
+                <h3>Belum Ada Produk</h3>
+                <p>Menu catering akan segera tersedia. Nantikan koleksi menu terbaik kami!</p>
+                {% if user.is_staff %}
+                <a href="/admin/shop/product/add/" 
+                   class="btn-detail" 
+                   style="margin-top: 20px; width: auto; display: inline-flex;">
+                    <i class="fas fa-plus"></i> Tambah Produk
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/menu.js' %}"></script>
+{% endblock %}

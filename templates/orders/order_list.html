@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Pesanan Saya - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orders-section {
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        min-height: 100vh;
+    }
+    .orders-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .orders-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .orders-header h1 {
+        color: #C4551A;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+    }
+    .order-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #FFE4CC;
+    }
+    .order-number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #C4551A;
+    }
+    .order-status {
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-paid { background: #d1ecf1; color: #0c5460; }
+    .status-processing { background: #cfe2ff; color: #084298; }
+    .status-completed { background: #d1e7dd; color: #0f5132; }
+    .status-cancelled { background: #f8d7da; color: #842029; }
+    .order-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #666;
+    }
+    .info-item i {
+        color: #C4551A;
+        font-size: 18px;
+    }
+    .order-total {
+        font-size: 24px;
+        font-weight: 700;
+        color: #C4551A;
+        text-align: right;
+        margin-top: 15px;
+    }
+    .order-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 15px;
+    }
+    .btn-detail {
+        background: #C4551A;
+        color: white;
+        padding: 10px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .empty-orders {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 15px;
+    }
+    .empty-orders i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="orders-section">
+    <div class="orders-container">
+        <div class="orders-header">
+            <h1><i class="fas fa-receipt"></i> Pesanan Saya</h1>
+        </div>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-number">
+                        <i class="fas fa-hashtag"></i> {{ order.order_number }}
+                    </div>
+                    <div class="order-status status-{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </div>
+                </div>
+
+                <div class="order-info">
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>{{ order.created_at|date:"d M Y, H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-truck"></i>
+                        <span>{{ order.delivery_date|date:"d M Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>{{ order.total_items }} porsi</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ order.delivery_location }}</span>
+                    </div>
+                </div>
+
+                <div class="order-total">
+                    Total: {{ order.total|rupiah }}
+                </div>
+
+                <div class="order-actions">
+                    <a href="{% url 'order_detail' order.id %}" class="btn-detail">
+                        <i class="fas fa-eye"></i> Lihat Detail
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-orders">
+                <i class="fas fa-receipt"></i>
+                <h2>Belum Ada Pesanan</h2>
+                <p>Yuk mulai pesan catering sekarang!</p>
+                <a href="{% url 'menu' %}" style="background: #C4551A; color: white; padding: 15px 40px; border-radius: 10px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: 600;">
+                    <i class="fas fa-utensils"></i> Lihat Menu
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

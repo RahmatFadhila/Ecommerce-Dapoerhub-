@@ -1,0 +1,702 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Detail Pesanan #{{ order.order_number }} - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .order-detail-section {
+        padding: 100px 20px 80px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 50%, #FFDAB9 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+
+    .order-detail-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(196, 85, 26, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .order-detail-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Back Button */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #C4551A;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 30px;
+        padding: 12px 25px;
+        background: white;
+        border-radius: 50px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+
+    .back-button:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 5px 20px rgba(196, 85, 26, 0.2);
+    }
+
+    /* Detail Card */
+    .detail-card {
+        background: white;
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 
+            0 10px 40px rgba(0,0,0,0.1),
+            0 0 0 1px rgba(196, 85, 26, 0.1);
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #C4551A 0%, #FF6B35 50%, #C4551A 100%);
+    }
+
+    .detail-card h2 {
+        color: #C4551A;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #FFE4CC;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .detail-card h2 i {
+        font-size: 32px;
+    }
+
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .info-row {
+        background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .info-row:hover {
+        transform: translateY(-3px);
+        border-color: #FFE4CC;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    .info-label {
+        color: #666;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-label i {
+        color: #C4551A;
+        font-size: 16px;
+    }
+
+    .info-value {
+        color: #333;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    /* Status Badge - Enhanced */
+    .order-status {
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-status::before {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        left: 15px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.5); }
+    }
+
+    .status-pending { 
+        background: linear-gradient(135deg, #FFF3CD 0%, #FFE8A1 100%); 
+        color: #856404;
+        box-shadow: 0 5px 20px rgba(255, 193, 7, 0.3);
+    }
+    .status-pending::before { background: #856404; }
+
+    .status-paid { 
+        background: linear-gradient(135deg, #D1ECF1 0%, #A8DADC 100%); 
+        color: #0C5460;
+        box-shadow: 0 5px 20px rgba(23, 162, 184, 0.3);
+    }
+    .status-paid::before { background: #0C5460; }
+
+    .status-processing { 
+        background: linear-gradient(135deg, #CFE2FF 0%, #9EC5FE 100%); 
+        color: #084298;
+        box-shadow: 0 5px 20px rgba(13, 110, 253, 0.3);
+    }
+    .status-processing::before { background: #084298; }
+
+    .status-completed { 
+        background: linear-gradient(135deg, #D1E7DD 0%, #A3CFBB 100%); 
+        color: #0F5132;
+        box-shadow: 0 5px 20px rgba(25, 135, 84, 0.3);
+    }
+    .status-completed::before { background: #0F5132; }
+
+    .status-cancelled { 
+        background: linear-gradient(135deg, #F8D7DA 0%, #F1AEB5 100%); 
+        color: #842029;
+        box-shadow: 0 5px 20px rgba(220, 53, 69, 0.3);
+    }
+    .status-cancelled::before { background: #842029; }
+
+    /* Order Item Card */
+    .order-item {
+        display: flex;
+        gap: 25px;
+        padding: 25px;
+        background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+        border-radius: 20px;
+        margin-bottom: 20px;
+        border: 2px solid transparent;
+        transition: all 0.4s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: linear-gradient(180deg, #C4551A 0%, #FF6B35 100%);
+        transform: scaleY(0);
+        transition: transform 0.3s;
+    }
+
+    .order-item:hover {
+        border-color: #FFE4CC;
+        transform: translateX(5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    .order-item:hover::before {
+        transform: scaleY(1);
+    }
+
+    .order-item img {
+        width: 100px;
+        height: 100px;
+        border-radius: 15px;
+        object-fit: cover;
+        flex-shrink: 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .order-item-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .order-item-name {
+        font-size: 20px;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .order-item-details {
+        color: #666;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .order-item-details i {
+        color: #C4551A;
+    }
+
+    .order-item-notes {
+        background: white;
+        padding: 12px;
+        border-radius: 10px;
+        font-style: italic;
+        margin-top: 8px;
+        border-left: 3px solid #C4551A;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .order-item-price {
+        text-align: right;
+        font-size: 22px;
+        font-weight: 900;
+        color: #C4551A;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Summary Table */
+    .summary-table {
+        width: 100%;
+        margin-top: 30px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        padding: 25px;
+        border-radius: 15px;
+    }
+
+    .summary-table tr td {
+        padding: 15px 0;
+        font-size: 17px;
+        color: #555;
+    }
+
+    .summary-table tr td:first-child {
+        font-weight: 600;
+    }
+
+    .summary-table tr td:last-child {
+        text-align: right;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .summary-table tr:not(:last-child) td {
+        border-bottom: 2px dashed #FFD4A3;
+    }
+
+    .summary-table tr:last-child {
+        border-top: 3px solid #C4551A;
+        font-size: 24px;
+        font-weight: 900;
+        color: #C4551A;
+    }
+
+    .summary-table tr:last-child td {
+        padding-top: 20px;
+        padding-bottom: 10px;
+    }
+
+    /* Payment Button */
+    .btn-payment {
+        width: 100%;
+        background: linear-gradient(135deg, #28A745 0%, #20C997 100%);
+        color: white;
+        border: none;
+        padding: 20px;
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: 800;
+        cursor: pointer;
+        margin-top: 30px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s;
+        box-shadow: 0 8px 30px rgba(40, 167, 69, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-payment::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-payment:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-payment:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 45px rgba(40, 167, 69, 0.5);
+    }
+
+    .btn-payment i {
+        font-size: 24px;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    /* Success Message */
+    .success-message {
+        background: linear-gradient(135deg, #D1E7DD 0%, #A3CFBB 100%);
+        color: #0F5132;
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 30px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border: 3px solid #75B798;
+        box-shadow: 0 5px 20px rgba(25, 135, 84, 0.2);
+    }
+
+    .success-message i {
+        font-size: 28px;
+        animation: checkPulse 2s infinite;
+    }
+
+    @keyframes checkPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+
+    /* Address Section */
+    .address-section {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+        border: 2px solid #FFE4CC;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .order-detail-section {
+            padding: 80px 15px 60px;
+        }
+
+        .detail-card {
+            padding: 25px;
+        }
+
+        .detail-card h2 {
+            font-size: 22px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .order-item {
+            flex-direction: column;
+        }
+
+        .order-item img {
+            width: 100%;
+            height: 200px;
+        }
+
+        .order-item-price {
+            text-align: left;
+            font-size: 20px;
+        }
+
+        .summary-table {
+            padding: 20px;
+        }
+
+        .summary-table tr td {
+            font-size: 15px;
+        }
+
+        .summary-table tr:last-child {
+            font-size: 20px;
+        }
+
+        .btn-payment {
+            padding: 18px;
+            font-size: 17px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="order-detail-section">
+    <div class="order-detail-container">
+        <!-- Back Button -->
+        <a href="{% url 'order_list' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Kembali ke Daftar Pesanan</span>
+        </a>
+
+        <!-- Order Info Card -->
+        <div class="detail-card">
+            <h2>
+                <i class="fas fa-info-circle"></i>
+                Informasi Pesanan
+            </h2>
+            
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-hashtag"></i>
+                        Nomor Pesanan
+                    </span>
+                    <span class="info-value" style="font-weight: 900; color: #C4551A; font-size: 20px;">
+                        {{ order.order_number }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-flag"></i>
+                        Status Pesanan
+                    </span>
+                    <span class="info-value">
+                        <span class="order-status status-{{ order.status }}">
+                            {% if order.status == 'pending' %}
+                                <i class="fas fa-clock"></i> Menunggu Pembayaran
+                            {% elif order.status == 'paid' %}
+                                <i class="fas fa-check"></i> Dibayar
+                            {% elif order.status == 'processing' %}
+                                <i class="fas fa-spinner fa-spin"></i> Diproses
+                            {% elif order.status == 'completed' %}
+                                <i class="fas fa-check-circle"></i> Selesai
+                            {% elif order.status == 'cancelled' %}
+                                <i class="fas fa-times-circle"></i> Dibatalkan
+                            {% endif %}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-calendar-plus"></i>
+                        Tanggal Pesan
+                    </span>
+                    <span class="info-value">{{ order.created_at|date:"d M Y, H:i" }} WIB</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-truck"></i>
+                        Tanggal & Waktu Pengiriman
+                    </span>
+                    <span class="info-value">
+                        {{ order.delivery_date|date:"d M Y" }} - {{ order.delivery_time }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Info Card -->
+        <div class="detail-card">
+            <h2>
+                <i class="fas fa-user-circle"></i>
+                Informasi Penerima
+            </h2>
+            
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-user"></i>
+                        Nama Lengkap
+                    </span>
+                    <span class="info-value">{{ order.customer_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-phone"></i>
+                        No. Telepon
+                    </span>
+                    <span class="info-value">{{ order.customer_phone }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </span>
+                    <span class="info-value">{{ order.customer_email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <i class="fas fa-shipping-fast"></i>
+                        Metode Pengiriman
+                    </span>
+                    <span class="info-value">{{ order.get_delivery_method_display }}</span>
+                </div>
+            </div>
+
+            <div class="address-section">
+                <div class="info-row" style="background: transparent; padding: 0;">
+                    <span class="info-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Alamat Pengiriman
+                    </span>
+                    <span class="info-value" style="line-height: 1.6;">
+                        {{ order.delivery_address }}<br>
+                        <small style="color: #888; font-size: 14px;">
+                            <i class="fas fa-map-pin"></i> {{ order.delivery_location }}
+                        </small>
+                    </span>
+                </div>
+
+                {% if order.notes %}
+                <div class="info-row" style="background: transparent; padding: 0; margin-top: 20px;">
+                    <span class="info-label">
+                        <i class="fas fa-comment-dots"></i>
+                        Catatan Pesanan
+                    </span>
+                    <span class="info-value" style="font-style: italic; color: #555;">
+                        "{{ order.notes }}"
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Order Items Card -->
+        <div class="detail-card">
+            <h2>
+                <i class="fas fa-shopping-bag"></i>
+                Detail Pesanan ({{ order.total_items }} item)
+            </h2>
+            
+            {% for item in order_items %}
+            <div class="order-item">
+                {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+                {% else %}
+                <img src="{% static 'img/gado gado.jpg' %}" alt="{{ item.product_name }}">
+                {% endif %}
+                
+                <div class="order-item-info">
+                    <div class="order-item-name">{{ item.product_name }}</div>
+                    <div class="order-item-details">
+                        <i class="fas fa-utensils"></i>
+                        <strong>{{ item.quantity }} porsi</strong> × {{ item.product_price|rupiah }}
+                    </div>
+                    {% if item.notes %}
+                    <div class="order-item-notes">
+                        <i class="fas fa-sticky-note"></i> {{ item.notes }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="order-item-price">
+                    {{ item.total_price|rupiah }}
+                </div>
+            </div>
+            {% endfor %}
+
+            <table class="summary-table">
+                <tr>
+                    <td>
+                        <i class="fas fa-receipt"></i> Subtotal ({{ order.total_items }} porsi)
+                    </td>
+                    <td>{{ order.subtotal|rupiah }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <i class="fas fa-shipping-fast"></i> Ongkos Kirim
+                    </td>
+                    <td>{{ order.delivery_fee|rupiah }}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <i class="fas fa-money-bill-wave"></i> TOTAL PEMBAYARAN
+                    </td>
+                    <td>{{ order.total|rupiah }}</td>
+                </tr>
+            </table>
+
+            {% if order.status == 'pending' %}
+            <a href="{% url 'payment_detail' order.id %}" class="btn-payment">
+                <i class="fas fa-credit-card"></i>
+                Lanjutkan Pembayaran Sekarang
+            </a>
+            {% elif order.status == 'paid' %}
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <span>Pembayaran Berhasil - Pesanan Sedang Diproses</span>
+            </div>
+            {% elif order.status == 'completed' %}
+            <div class="success-message">
+                <i class="fas fa-check-double"></i>
+                <span>Pesanan Telah Selesai - Terima Kasih!</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

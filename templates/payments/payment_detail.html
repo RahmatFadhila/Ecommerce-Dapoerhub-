@@ -1,0 +1,1007 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pembayaran - Order #{{ order.order_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-section {
+        background: linear-gradient(135deg, #D4E8D4 0%, #B8D8B8 50%, #C8E0C8 100%);
+        padding: 60px 20px;
+        min-height: calc(100vh - 200px);
+    }
+
+    .payment-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 25px;
+        padding: 50px;
+        box-shadow: 0 15px 60px rgba(0,0,0,0.12);
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #C4551A 0%, #FF6B35 50%, #C4551A 100%);
+    }
+
+    .payment-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .payment-header h1 {
+        font-size: 36px;
+        color: #C4551A;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .order-number {
+        background: linear-gradient(135deg, #C4551A 0%, #FF6B35 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-size: 20px;
+        font-weight: 700;
+        display: inline-block;
+        box-shadow: 0 8px 25px rgba(196, 85, 26, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .status-badge {
+        margin-top: 20px;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        display: inline-block;
+        font-size: 16px;
+    }
+
+    .status-pending { 
+        background: linear-gradient(135deg, #FFF3CD 0%, #FFE8A1 100%); 
+        color: #856404;
+        border: 2px solid #FFEAA7;
+    }
+    
+    .status-verifying { 
+        background: linear-gradient(135deg, #D1ECF1 0%, #A8DADC 100%); 
+        color: #0C5460;
+        border: 2px solid #BEE5EB;
+    }
+    
+    .status-paid { 
+        background: linear-gradient(135deg, #D4EDDA 0%, #A8E6A3 100%); 
+        color: #155724;
+        border: 2px solid #C3E6CB;
+    }
+
+    /* Order Summary */
+    .order-summary {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE4CC 100%);
+        padding: 35px;
+        border-radius: 20px;
+        margin: 40px 0;
+        border: 2px solid #FFD4A3;
+        box-shadow: 0 5px 20px rgba(196, 85, 26, 0.1);
+    }
+
+    .order-summary h3 {
+        color: #C4551A;
+        margin-bottom: 25px;
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px dashed #FFD4A3;
+        font-size: 16px;
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+        font-size: 28px;
+        font-weight: 900;
+        color: #C4551A;
+        border-top: 3px solid #C4551A;
+        padding-top: 20px;
+        margin-top: 15px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    /* Payment Methods */
+    .payment-methods {
+        margin: 40px 0;
+    }
+
+    .payment-methods h3 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .payment-method-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .ewallet-option {
+        position: relative;
+    }
+
+    .ewallet-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .ewallet-option input[type="radio"]:checked + label {
+        border-color: #C4551A !important;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%) !important;
+        transform: scale(1.05);
+    }
+
+    .method-option {
+        position: relative;
+    }
+
+    .method-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .method-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 20px;
+        border: 3px solid #E0E0E0;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        background: white;
+        position: relative;
+        overflow: hidden;
+        min-height: 160px;
+    }
+
+    .method-option label::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .method-option input[type="radio"]:checked + label::before {
+        opacity: 1;
+    }
+
+    .method-option input[type="radio"]:checked + label {
+        border-color: #C4551A;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(196, 85, 26, 0.3);
+    }
+
+    .method-icon {
+        font-size: 50px;
+        margin-bottom: 12px;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s;
+    }
+
+    .method-option input[type="radio"]:checked + label .method-icon {
+        transform: scale(1.15);
+    }
+
+    .method-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 17px;
+        position: relative;
+        z-index: 1;
+        margin-bottom: 5px;
+    }
+
+    .method-desc {
+        font-size: 12px;
+        color: #666;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Upload Section */
+    .upload-section {
+        background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+        padding: 40px;
+        border-radius: 20px;
+        display: none;
+        margin-top: 30px;
+        border: 2px solid #DEE2E6;
+    }
+
+    .upload-section.active {
+        display: block;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .upload-section h4 {
+        color: #C4551A;
+        margin-bottom: 30px;
+        font-size: 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #DEE2E6;
+        border-radius: 15px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        transition: all 0.3s;
+        background: white;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #C4551A;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(196, 85, 26, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .file-upload-wrapper {
+        margin-top: 10px;
+    }
+
+    .file-upload {
+        border: 3px dashed #C4551A;
+        padding: 50px 30px;
+        text-align: center;
+        border-radius: 20px;
+        cursor: pointer;
+        background: white;
+        transition: all 0.3s;
+        display: block;
+    }
+
+    .file-upload:hover {
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(196, 85, 26, 0.2);
+    }
+
+    .file-upload input[type="file"] {
+        display: none;
+    }
+
+    .upload-icon {
+        font-size: 70px;
+        color: #C4551A;
+        margin-bottom: 20px;
+    }
+
+    .upload-text {
+        font-weight: 700;
+        font-size: 20px;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .upload-hint {
+        color: #666;
+        font-size: 15px;
+    }
+
+    .file-name-display {
+        margin-top: 20px;
+        color: #C4551A;
+        font-weight: 700;
+        font-size: 16px;
+        min-height: 24px;
+    }
+
+    .btn-upload {
+        width: 100%;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 15px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 25px;
+    }
+
+    .btn-upload:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.5);
+    }
+
+    .btn-upload:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-upload:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Bank Info */
+    .bank-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        margin: 30px 0;
+    }
+
+    .bank-card {
+        background: white;
+        border: 2px solid #E0E0E0;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bank-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(196, 85, 26, 0.05) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .bank-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-color: #C4551A;
+    }
+
+    .bank-card:hover::before {
+        opacity: 1;
+    }
+
+    .bank-icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+
+    .bank-name {
+        font-weight: 800;
+        font-size: 22px;
+        color: #C4551A;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .account-number {
+        font-size: 26px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        margin: 15px 0;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        padding: 12px;
+        border-radius: 10px;
+        color: #333;
+    }
+
+    .account-holder {
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+
+    .btn-copy {
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        color: #1976D2;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        margin-top: 10px;
+        transition: all 0.3s;
+        font-size: 14px;
+    }
+
+    .btn-copy:hover {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    /* E-Wallet Cards */
+    .ewallet-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin: 25px 0;
+    }
+
+    .ewallet-card {
+        background: white;
+        border: 2px solid #E0E0E0;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .ewallet-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        border-color: #C4551A;
+    }
+
+    .ewallet-icon {
+        font-size: 45px;
+        margin-bottom: 10px;
+    }
+
+    .ewallet-name {
+        font-weight: 700;
+        font-size: 18px;
+        color: #C4551A;
+        margin-bottom: 8px;
+    }
+
+    .ewallet-number {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+
+    @media (max-width: 768px) {
+        .payment-card {
+            padding: 30px 20px;
+        }
+
+        .payment-method-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .method-option label {
+            padding: 25px 15px;
+            min-height: 140px;
+        }
+
+        .method-icon {
+            font-size: 40px;
+        }
+
+        .method-name {
+            font-size: 15px;
+        }
+
+        .bank-info,
+        .ewallet-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-header h1 {
+            font-size: 28px;
+        }
+
+        .order-number {
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+
+        .summary-row:last-child {
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="payment-section">
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1><i class="fas fa-credit-card"></i> Pembayaran</h1>
+                <div class="order-number">
+                    Order #{{ order.order_number }}
+                </div>
+                <div class="status-badge status-{{ payment.status }}">
+                    {% if payment.status == 'pending' %}
+                        ⏳ Menunggu Pembayaran
+                    {% elif payment.status == 'verifying' %}
+                        🔍 Sedang Diverifikasi
+                    {% elif payment.status == 'paid' %}
+                        ✅ Sudah Dibayar
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h3>
+                    <i class="fas fa-shopping-bag"></i> Detail Pesanan
+                </h3>
+                
+                {% for item in order.items.all %}
+                <div class="summary-row" style="font-size: 16px;">
+                    <span><strong>{{ item.product_name }}</strong> × {{ item.quantity }}</span>
+                    <span style="font-weight: 700;">Rp {{ item.total_price|floatformat:0 }}</span>
+                </div>
+                {% endfor %}
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span style="font-weight: 600;">Rp {{ order.subtotal|floatformat:0 }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Ongkir</span>
+                    <span style="font-weight: 600;">Rp {{ order.delivery_fee|floatformat:0 }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>TOTAL BAYAR</span>
+                    <span>Rp {{ order.total|floatformat:0 }}</span>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <form method="POST" action="{% url 'upload_payment_proof' order.id %}" enctype="multipart/form-data" id="paymentForm">
+                {% csrf_token %}
+                
+                <div class="payment-methods">
+                    <h3>
+                        <i class="fas fa-money-check-alt"></i> Pilih Metode Pembayaran
+                    </h3>
+
+                    <div class="payment-method-grid">
+                        <div class="method-option">
+                            <input type="radio" name="payment_method" value="bank_transfer" id="bank_transfer" checked>
+                            <label for="bank_transfer">
+                                <div class="method-icon">🏦</div>
+                                <div class="method-name">Transfer Bank</div>
+                                <div class="method-desc">BCA / Mandiri</div>
+                            </label>
+                        </div>
+
+                        <div class="method-option">
+                            <input type="radio" name="payment_method" value="ewallet" id="ewallet">
+                            <label for="ewallet">
+                                <div class="method-icon">📱</div>
+                                <div class="method-name">E-Wallet</div>
+                                <div class="method-desc">GoPay, OVO, DANA, dll</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- E-Wallet Selection -->
+                    <div id="ewalletSelection" style="display: none; margin-top: 25px; padding: 25px; background: white; border-radius: 15px; border: 2px solid #E0E0E0;">
+                        <h4 style="color: #C4551A; margin-bottom: 20px; font-size: 18px; font-weight: 700;">
+                            <i class="fas fa-mobile-alt"></i> Pilih E-Wallet
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                            <div class="ewallet-option">
+                                <input type="radio" name="ewallet_type" value="gopay" id="gopay_select">
+                                <label for="gopay_select" style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px solid #E0E0E0; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 10px;">
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">GoPay</span>
+                                </label>
+                            </div>
+                            <div class="ewallet-option">
+                                <input type="radio" name="ewallet_type" value="ovo" id="ovo_select">
+                                <label for="ovo_select" style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px solid #E0E0E0; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg" alt="OVO" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 10px;">
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">OVO</span>
+                                </label>
+                            </div>
+                            <div class="ewallet-option">
+                                <input type="radio" name="ewallet_type" value="dana" id="dana_select">
+                                <label for="dana_select" style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px solid #E0E0E0; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 10px;">
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">DANA</span>
+                                </label>
+                            </div>
+                            <div class="ewallet-option">
+                                <input type="radio" name="ewallet_type" value="shopeepay" id="shopeepay_select">
+                                <label for="shopeepay_select" style="display: flex; flex-direction: column; align-items: center; padding: 20px; border: 2px solid #E0E0E0; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" alt="ShopeePay" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 10px;">
+                                    <span style="font-weight: 600; font-size: 14px; color: #333;">ShopeePay</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Transfer Section -->
+                <div id="bankTransferSection" class="upload-section active">
+                    <h4>
+                        <i class="fas fa-university"></i> Informasi Rekening Bank
+                    </h4>
+
+                    <div class="bank-info">
+                        <div class="bank-card">
+                            <div class="bank-icon">🏦</div>
+                            <div class="bank-name">BCA</div>
+                            <div class="account-number">1234567890</div>
+                            <div class="account-holder">a/n PT DapoerHub Catering</div>
+                            <button type="button" class="btn-copy" onclick="copyText('1234567890')">
+                                <i class="fas fa-copy"></i> Salin Nomor
+                            </button>
+                        </div>
+
+                        <div class="bank-card">
+                            <div class="bank-icon">🏦</div>
+                            <div class="bank-name">Mandiri</div>
+                            <div class="account-number">0987654321</div>
+                            <div class="account-holder">a/n PT DapoerHub Catering</div>
+                            <button type="button" class="btn-copy" onclick="copyText('0987654321')">
+                                <i class="fas fa-copy"></i> Salin Nomor
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nama Bank</label>
+                        <input type="text" name="bank_name" id="bank_name" placeholder="Contoh: BCA" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nama Pengirim</label>
+                        <input type="text" name="account_holder" id="account_holder" placeholder="Masukkan nama lengkap Anda" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Bukti Transfer</label>
+                        <div class="file-upload-wrapper">
+                            <label for="proofFile" class="file-upload">
+                                <div class="upload-icon">📤</div>
+                                <div class="upload-text">Klik untuk upload bukti transfer</div>
+                                <div class="upload-hint">Format: JPG, PNG, PDF (Maksimal 5MB)</div>
+                                <input type="file" name="proof_image" id="proofFile" accept="image/*,application/pdf">
+                                <div id="fileName" class="file-name-display"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-upload" id="btnTransfer">
+                        <i class="fas fa-check-circle"></i> Upload & Konfirmasi Pembayaran
+                    </button>
+                </div>
+
+                <!-- E-Wallet Section -->
+                <div id="ewalletSection" class="upload-section">
+                    <h4 id="ewalletTitle">
+                        <i class="fas fa-mobile-alt"></i> Informasi E-Wallet
+                    </h4>
+
+                    <div id="ewalletInfoDisplay" style="text-align: center; padding: 40px;">
+                        <p style="color: #999; font-size: 16px;">
+                            <i class="fas fa-hand-pointer"></i> Pilih jenis E-Wallet terlebih dahulu
+                        </p>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label class="form-label">Nama Pengirim</label>
+                        <input type="text" name="ewallet_sender" id="ewallet_sender" placeholder="Masukkan nama lengkap Anda" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Bukti Transfer</label>
+                        <div class="file-upload-wrapper">
+                            <label for="ewalletProof" class="file-upload">
+                                <div class="upload-icon">📤</div>
+                                <div class="upload-text">Klik untuk upload screenshot pembayaran</div>
+                                <div class="upload-hint">Format: JPG, PNG (Maksimal 5MB)</div>
+                                <input type="file" name="proof_image" id="ewalletProof" accept="image/*">
+                                <div id="ewalletFileName" class="file-name-display"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-upload" id="btnEwallet">
+                        <i class="fas fa-check-circle"></i> Upload & Konfirmasi Pembayaran
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+// Toggle payment sections
+const radios = document.querySelectorAll('input[name="payment_method"]');
+const bankSection = document.getElementById('bankTransferSection');
+const ewalletSection = document.getElementById('ewalletSection');
+const ewalletSelection = document.getElementById('ewalletSelection');
+
+radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        bankSection.classList.remove('active');
+        ewalletSection.classList.remove('active');
+        
+        if (this.value === 'bank_transfer') {
+            bankSection.classList.add('active');
+            ewalletSelection.style.display = 'none';
+        } else if (this.value === 'ewallet') {
+            ewalletSelection.style.display = 'block';
+            ewalletSection.classList.add('active');
+        }
+    });
+});
+
+// E-Wallet type selection
+const ewalletTypeRadios = document.querySelectorAll('input[name="ewallet_type"]');
+const ewalletDetails = {
+    'gopay': { 
+        name: 'GoPay', 
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg',
+        number: '0812-3456-7890',
+        numberRaw: '081234567890'
+    },
+    'ovo': { 
+        name: 'OVO', 
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg',
+        number: '0812-3456-7890',
+        numberRaw: '081234567890'
+    },
+    'dana': { 
+        name: 'DANA', 
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg',
+        number: '0812-3456-7890',
+        numberRaw: '081234567890'
+    },
+    'shopeepay': { 
+        name: 'ShopeePay', 
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg',
+        number: '0812-3456-7890',
+        numberRaw: '081234567890'
+    }
+};
+
+ewalletTypeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Update the e-wallet section title and display
+        const selectedEwallet = ewalletDetails[this.value];
+        if (selectedEwallet) {
+            const titleElement = document.getElementById('ewalletTitle');
+            const infoDisplay = document.getElementById('ewalletInfoDisplay');
+            
+            titleElement.innerHTML = `<i class="fas fa-mobile-alt"></i> Informasi ${selectedEwallet.name}`;
+            
+            // Display only selected e-wallet info
+            infoDisplay.innerHTML = `
+                <div style="max-width: 500px; margin: 0 auto; background: white; border: 2px solid #E0E0E0; border-radius: 20px; padding: 40px; text-align: center;">
+                    <div style="margin-bottom: 20px;">
+                        <img src="${selectedEwallet.logo}" alt="${selectedEwallet.name}" style="width: 80px; height: 80px; object-fit: contain;">
+                    </div>
+                    <div style="font-weight: 800; font-size: 24px; color: #C4551A; margin-bottom: 20px; text-transform: uppercase;">
+                        ${selectedEwallet.name}
+                    </div>
+                    <div style="font-size: 28px; font-weight: 700; font-family: 'Courier New', monospace; background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%); padding: 15px; border-radius: 12px; margin: 20px 0; color: #333;">
+                        ${selectedEwallet.number}
+                    </div>
+                    <div style="color: #666; font-size: 15px; margin-bottom: 20px;">
+                        a/n PT DapoerHub Catering
+                    </div>
+                    <button type="button" class="btn-copy" onclick="copyText('${selectedEwallet.numberRaw}')" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); color: #1976D2; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 15px; transition: all 0.3s;">
+                        <i class="fas fa-copy"></i> Salin Nomor
+                    </button>
+                </div>
+            `;
+        }
+    });
+});
+
+// File upload preview for bank transfer
+document.getElementById('proofFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        document.getElementById('fileName').innerHTML = '<i class="fas fa-check-circle"></i> ' + fileName;
+    } else {
+        document.getElementById('fileName').innerHTML = '';
+    }
+});
+
+// File upload preview for e-wallet
+document.getElementById('ewalletProof').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        document.getElementById('ewalletFileName').innerHTML = '<i class="fas fa-check-circle"></i> ' + fileName;
+    } else {
+        document.getElementById('ewalletFileName').innerHTML = '';
+    }
+});
+
+// Form validation before submit
+const form = document.getElementById('paymentForm');
+form.addEventListener('submit', function(e) {
+    const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    
+    if (selectedMethod === 'bank_transfer') {
+        const bankName = document.getElementById('bank_name').value.trim();
+        const accountHolder = document.getElementById('account_holder').value.trim();
+        const proofFile = document.getElementById('proofFile').files[0];
+        
+        if (!bankName) {
+            e.preventDefault();
+            alert('⚠️ Mohon isi Nama Bank!');
+            document.getElementById('bank_name').focus();
+            return false;
+        }
+        
+        if (!accountHolder) {
+            e.preventDefault();
+            alert('⚠️ Mohon isi Nama Pengirim!');
+            document.getElementById('account_holder').focus();
+            return false;
+        }
+        
+        if (!proofFile) {
+            e.preventDefault();
+            alert('⚠️ Mohon upload bukti transfer!');
+            return false;
+        }
+        
+        // Check file size (5MB)
+        if (proofFile.size > 5 * 1024 * 1024) {
+            e.preventDefault();
+            alert('⚠️ Ukuran file terlalu besar! Maksimal 5MB');
+            return false;
+        }
+    } else if (selectedMethod === 'ewallet') {
+        const ewalletType = document.querySelector('input[name="ewallet_type"]:checked');
+        
+        if (!ewalletType) {
+            e.preventDefault();
+            alert('⚠️ Mohon pilih jenis E-Wallet!');
+            return false;
+        }
+        
+        const ewalletSender = document.getElementById('ewallet_sender').value.trim();
+        const ewalletProof = document.getElementById('ewalletProof').files[0];
+        
+        if (!ewalletSender) {
+            e.preventDefault();
+            alert('⚠️ Mohon isi Nama Pengirim!');
+            document.getElementById('ewallet_sender').focus();
+            return false;
+        }
+        
+        if (!ewalletProof) {
+            e.preventDefault();
+            alert('⚠️ Mohon upload bukti pembayaran!');
+            return false;
+        }
+        
+        // Check file size (5MB)
+        if (ewalletProof.size > 5 * 1024 * 1024) {
+            e.preventDefault();
+            alert('⚠️ Ukuran file terlalu besar! Maksimal 5MB');
+            return false;
+        }
+    }
+    
+    // Show loading indicator
+    const submitBtn = e.submitter;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    
+    return true;
+});
+
+// Copy text function
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#28a745,#20c997);color:white;padding:15px 25px;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.2);z-index:9999;font-weight:600;animation:slideIn 0.3s ease-out';
+        toast.innerHTML = '<i class="fas fa-check-circle"></i> Nomor berhasil disalin!';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+    }).catch(() => {
+        alert('Nomor: ' + text);
+    });
+}
+
+// Add animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

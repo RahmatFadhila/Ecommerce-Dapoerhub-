@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Pembayaran - Order #{{ order.order_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-section {
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        min-height: 100vh;
+    }
+    .payment-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .payment-card h2 {
+        color: #C4551A;
+        font-size: 28px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .order-summary {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #ddd;
+    }
+    .summary-row:last-child {
+        border-bottom: none;
+        font-size: 22px;
+        font-weight: 700;
+        color: #C4551A;
+        border-top: 2px solid #C4551A;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+    .btn-pay {
+        width: 100%;
+        background: linear-gradient(135deg, #00AA13 0%, #00D916 100%);
+        color: white;
+        border: none;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 170, 19, 0.4);
+    }
+    .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #eee;
+    }
+    .payment-method-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    .payment-method-item i {
+        font-size: 30px;
+        color: #C4551A;
+        margin-bottom: 8px;
+    }
+    .payment-method-item span {
+        font-size: 12px;
+        color: #666;
+        font-weight: 600;
+        display: block;
+    }
+    .info-box {
+        background: #e7f3ff;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #0066cc;
+        margin-bottom: 25px;
+    }
+    .info-box h4 {
+        color: #0066cc;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    .info-box p {
+        color: #666;
+        margin: 0;
+        line-height: 1.6;
+    }
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    .loading-overlay.active {
+        display: flex;
+    }
+    .loader {
+        color: white;
+        font-size: 20px;
+        text-align: center;
+    }
+    .loader i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="payment-section">
+    <div class="payment-container">
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'order_detail' order.id %}" style="color: #C4551A; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-arrow-left"></i> Kembali ke Detail Pesanan
+            </a>
+        </div>
+
+        <div class="payment-card">
+            <h2><i class="fas fa-credit-card"></i> Pembayaran</h2>
+            
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle"></i> Informasi Penting</h4>
+                <p>
+                    Anda akan diarahkan ke halaman pembayaran Midtrans yang aman. 
+                    Pilih metode pembayaran favorit Anda (Kartu Kredit/Debit, Transfer Bank, E-Wallet, atau QRIS).
+                </p>
+            </div>
+
+            <div class="order-summary">
+                <h3 style="color: #333; margin-bottom: 15px;">Detail Pesanan</h3>
+                <div class="summary-row">
+                    <span>Nomor Pesanan</span>
+                    <span style="font-weight: 700;">{{ order.order_number }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tanggal Pengiriman</span>
+                    <span>{{ order.delivery_date|date:"d M Y" }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>{{ order.subtotal|rupiah }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Ongkos Kirim</span>
+                    <span>{{ order.delivery_fee|rupiah }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>TOTAL PEMBAYARAN</span>
+                    <span>{{ payment.amount|rupiah }}</span>
+                </div>
+            </div>
+
+            <button id="pay-button" class="btn-pay">
+                <i class="fas fa-lock"></i>
+                Bayar Sekarang - {{ payment.amount|rupiah }}
+            </button>
+
+            <div class="payment-methods">
+                <div class="payment-method-item">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Kartu Kredit/Debit</span>
+                </div>
+                <div class="payment-method-item">
+                    <i class="fas fa-university"></i>
+                    <span>Transfer Bank</span>
+                </div>
+                <div class="payment-method-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>GoPay</span>
+                </div>
+                <div class="payment-method-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>ShopeePay</span>
+                </div>
+                <div class="payment-method-item">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QRIS</span>
+                </div>
+                <div class="payment-method-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Akulaku</span>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #666; margin-top: 25px; font-size: 14px;">
+                <i class="fas fa-shield-alt" style="color: #00AA13;"></i>
+                Pembayaran aman dilindungi oleh Midtrans
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader">
+        <i class="fas fa-spinner"></i>
+        <p>Memproses pembayaran...<br>Mohon tunggu</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Midtrans Snap JS -->
+<script src="https://app.{{ midtrans_environment }}.midtrans.com/snap/snap.js" data-client-key="{{ midtrans_client_key }}"></script>
+
+<script>
+    const payButton = document.getElementById('pay-button');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    payButton.addEventListener('click', function() {
+        loadingOverlay.classList.add('active');
+        
+        // Trigger Snap payment
+        snap.pay('{{ payment.midtrans_snap_token }}', {
+            onSuccess: function(result) {
+                console.log('Payment success:', result);
+                loadingOverlay.classList.remove('active');
+                alert('✅ Pembayaran berhasil! Pesanan Anda sedang diproses.');
+                window.location.href = '{% url "order_detail" order.id %}';
+            },
+            onPending: function(result) {
+                console.log('Payment pending:', result);
+                loadingOverlay.classList.remove('active');
+                alert('⏳ Menunggu pembayaran. Silakan selesaikan pembayaran Anda.');
+                window.location.href = '{% url "order_detail" order.id %}';
+            },
+            onError: function(result) {
+                console.log('Payment error:', result);
+                loadingOverlay.classList.remove('active');
+                alert('❌ Pembayaran gagal. Silakan coba lagi.');
+            },
+            onClose: function() {
+                console.log('Payment popup closed');
+                loadingOverlay.classList.remove('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{{ product.name }} - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- CHECKOUT SECTION -->
+<section class="checkout-section">
+    <!-- Back Button -->
+    <div class="back-button-wrapper">
+        <a href="{% url 'menu' %}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Kembali ke Menu
+        </a>
+    </div>
+    
+    <div class="checkout-container">
+        <!-- Left Side - Product Display -->
+        <div class="checkout-left">
+            <div class="product-image-container">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image-large">
+                {% else %}
+                <img src="{% static 'img/gado gado.jpg' %}" alt="{{ product.name }}" class="product-image-large" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop'">
+                {% endif %}
+            </div>
+            
+            <div class="product-main-info">
+                <h1 class="product-title">{{ product.name }}</h1>
+                
+                <!-- Rating Product -->
+                <div class="product-rating-box">
+                    <span class="stars">
+                        {% with avg=product.get_average_rating %}
+                            {% if avg > 0 %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                ☆☆☆☆☆
+                            {% endif %}
+                        {% endwith %}
+                    </span>
+                    <span class="rating-text">
+                        {{ product.get_average_rating|floatformat:1 }} 
+                        {% if product.get_review_count > 0 %}
+                            ({{ product.get_review_count }} review)
+                        {% else %}
+                            (Belum ada review)
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <p class="product-description">
+                    {{ product.description|default:"Produk berkualitas tinggi dengan bahan-bahan pilihan terbaik." }}
+                </p>
+                
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-box"></i>
+                        <span><strong>Stock:</strong> {{ product.stock }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-tag"></i>
+                        <span><strong>Kategori:</strong> {{ product.category.name }}</span>
+                    </div>
+                </div>
+                
+                <div class="product-ingredients">
+                    <strong>Detail Produk:</strong>
+                    <p>{{ product.description|default:"Informasi detail produk akan segera ditambahkan." }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Order Form -->
+        <div class="checkout-right">
+            <!-- Price Options - FIXED VERSION -->
+            <div class="price-options">
+                <!-- 10-50 Porsi - Harga Normal -->
+                <div class="price-option active" data-price="{{ price_high }}" data-portions="10-50">
+                    <div class="price-badge">{{ price_high|rupiah }}<span>/Porsi</span></div>
+                    <div class="price-range">10-50 Porsi</div>
+                </div>
+                
+                <!-- 50-150 Porsi - Diskon 20% -->
+                <div class="price-option" data-price="{{ price_mid }}" data-portions="50-150">
+                    <div class="price-badge">{{ price_mid|rupiah }}<span>/Porsi</span></div>
+                    <div class="price-range">50-150 Porsi</div>
+                    <span class="discount-badge">💰 Hemat 20%</span>
+                </div>
+                
+                <!-- >151 Porsi - Diskon 40% -->
+                <div class="price-option" data-price="{{ price_low }}" data-portions=">151">
+                    <div class="price-badge">{{ price_low|rupiah }}<span>/Porsi</span></div>
+                    <div class="price-range">>151 Porsi</div>
+                    <span class="discount-badge">🔥 Hemat 40%</span>
+                </div>
+            </div>
+
+            <!-- Order Form -->
+            <form method="POST" action="{% url 'checkout_direct' product.id %}" class="order-form" id="orderForm">
+                {% csrf_token %}
+                
+                <!-- Jumlah Pesanan -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-shopping-cart"></i> Jumlah Pesanan
+                    </label>
+                    <div class="quantity-input-wrapper">
+                        <button class="quantity-btn" id="decreaseBtn" type="button">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" name="quantity" class="quantity-input" id="quantityInput" value="20" min="10" required>
+                        <button class="quantity-btn" id="increaseBtn" type="button">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <small class="form-hint">Minimal pemesanan 10 porsi</small>
+                </div>
+
+                <!-- Tanggal Pengantaran -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Tanggal Pengantaran
+                    </label>
+                    <input type="date" name="delivery_date" class="form-control" id="deliveryDate" min="{{ min_date }}" required>
+                </div>
+
+                <!-- Lokasi Pengantaran -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> Lokasi Pengantaran
+                    </label>
+                    <div class="location-input-wrapper">
+                        <input type="text" name="location" class="form-control" id="deliveryLocation" placeholder="Masukkan lokasi atau klik ikon untuk deteksi otomatis" required>
+                        <button type="button" class="location-btn" id="detectLocationBtn" title="Deteksi Lokasi Otomatis">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+                    <small class="form-hint">Klik ikon untuk deteksi lokasi otomatis</small>
+                </div>
+
+                <!-- Alamat Detail -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-home"></i> Alamat Detail
+                    </label>
+                    <textarea name="address" class="form-control form-textarea" id="detailAddress" placeholder="Contoh: Jl. Merdeka No. 123, RT 02/RW 05, Patokan: Dekat Alfamart" rows="4" required></textarea>
+                    <small class="form-hint">Masukkan alamat lengkap dengan patokan untuk memudahkan pengantaran</small>
+                </div>
+
+                <!-- Hidden inputs -->
+                <input type="hidden" name="price_per_portion" id="hiddenPrice" value="{{ price_high }}">
+                <input type="hidden" name="product_name" value="{{ product.name }}">
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-header">Ringkasan Pesanan</div>
+                    <div class="summary-row">
+                        <span class="summary-label">Harga per porsi</span>
+                        <span class="summary-value" id="pricePerPortion">{{ price_high|rupiah }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Jumlah porsi</span>
+                        <span class="summary-value" id="totalPortions">20 porsi</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row summary-total">
+                        <span class="summary-label">TOTAL</span>
+                        <span class="summary-value" id="totalPrice">Rp 0</span>
+                    </div>
+                </div>
+
+                <!-- Order Buttons -->
+                <div style="display: grid; gap: 15px; margin-top: 20px;">
+                    <!-- Button Tambah ke Keranjang (hanya untuk user login) -->
+                    {% if user.is_authenticated %}
+                    <button type="button" id="addToCartBtn" style="width: 100%; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                        <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
+                    </button>
+                    {% endif %}
+                    
+                    <!-- Button Pesan Sekarang (WhatsApp) -->
+                    <button class="btn-order" type="button" id="orderBtn">
+                        <i class="fab fa-whatsapp"></i> Pesan via WhatsApp
+                    </button>
+                    
+                    <!-- Button Checkout Langsung (untuk user login) -->
+                    {% if user.is_authenticated %}
+                    <button type="submit" id="checkoutDirectBtn" style="width: 100%; background: linear-gradient(135deg, #C4551A 0%, #FF6B35 100%); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                        <i class="fas fa-credit-card"></i> Checkout Sekarang
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- REVIEWS SECTION (Di bawah checkout) -->
+    <div class="reviews-wrapper">
+        <div class="reviews-section">
+            <h2 class="reviews-header">
+                <i class="fas fa-star"></i> Customer Reviews
+            </h2>
+
+            {% if user.is_authenticated %}
+                <!-- Review Form -->
+                <div class="review-form-box">
+                    <h3>{% if user_review %}Edit Review Anda{% else %}Tulis Review{% endif %}</h3>
+                    <form method="POST" action="{% url 'add_review' product.id %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label class="form-label">Rating:</label>
+                            <div class="rating-stars">
+                                <input type="radio" name="rating" value="1" id="star1" {% if user_review.rating == 1 %}checked{% endif %} required>
+                                <label for="star1" title="1 bintang">★</label>
+                                
+                                <input type="radio" name="rating" value="2" id="star2" {% if user_review.rating == 2 %}checked{% endif %}>
+                                <label for="star2" title="2 bintang">★</label>
+                                
+                                <input type="radio" name="rating" value="3" id="star3" {% if user_review.rating == 3 %}checked{% endif %}>
+                                <label for="star3" title="3 bintang">★</label>
+                                
+                                <input type="radio" name="rating" value="4" id="star4" {% if user_review.rating == 4 %}checked{% endif %}>
+                                <label for="star4" title="4 bintang">★</label>
+                                
+                                <input type="radio" name="rating" value="5" id="star5" {% if user_review.rating == 5 %}checked{% endif %}>
+                                <label for="star5" title="5 bintang">★</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="comment" class="form-label">
+                                <i class="fas fa-comment"></i> Komentar:
+                            </label>
+                            <textarea name="comment" id="comment" class="form-control form-textarea" required placeholder="Bagikan pengalaman Anda tentang produk ini..." rows="5">{% if user_review %}{{ user_review.comment }}{% endif %}</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-review">
+                            <i class="fas fa-paper-plane"></i>
+                            {% if user_review %}Update Review{% else %}Kirim Review{% endif %}
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="login-prompt">
+                    <i class="fas fa-user-lock" style="font-size: 32px; color: #C4551A; margin-bottom: 10px; display: block;"></i>
+                    <p><a href="{% url 'login' %}?next={{ request.path }}">Login</a> atau <a href="{% url 'register' %}">Daftar</a> untuk menulis review</p>
+                </div>
+            {% endif %}
+
+            <!-- Review List -->
+            {% if reviews %}
+                <div class="review-list">
+                    {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <div class="review-user">
+                                    <i class="fas fa-user-circle"></i> {{ review.user.username }}
+                                </div>
+                                <div class="review-date">{{ review.created_at|date:"d M Y, H:i" }}</div>
+                            </div>
+                            <div class="review-stars-display">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="review-comment">{{ review.comment }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-reviews">
+                    <i class="fas fa-comment-slash" style="font-size: 48px; color: #ddd; margin-bottom: 15px; display: block;"></i>
+                    <p>Belum ada review untuk produk ini. Jadilah yang pertama!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/checkout.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Checkout - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+<style>
+    .checkout-section {
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        min-height: 100vh;
+    }
+    
+    .checkout-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .checkout-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .checkout-card h2 {
+        color: #C4551A;
+        font-size: 28px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #FFE4CC;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .form-control:focus {
+        border-color: #C4551A;
+        outline: none;
+    }
+    
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .btn-checkout {
+        width: 100%;
+        background: linear-gradient(135deg, #C4551A 0%, #FF6B35 100%);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+    }
+    
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(196, 85, 26, 0.4);
+    }
+    
+    .order-summary {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        font-size: 22px;
+        font-weight: 700;
+        color: #C4551A;
+        border-top: 2px solid #C4551A;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+    
+    .cart-items-preview {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .cart-item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .cart-item-row:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="checkout-section">
+    <div class="checkout-container">
+        <div style="margin-bottom: 20px;">
+            <a href="{% url 'cart' %}" style="color: #C4551A; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-arrow-left"></i> Kembali ke Keranjang
+            </a>
+        </div>
+
+        <div class="checkout-card">
+            <h2><i class="fas fa-clipboard-check"></i> Checkout Pesanan</h2>
+            
+            <!-- Preview Cart Items -->
+            <div class="cart-items-preview">
+                <h3 style="color: #333; margin-bottom: 15px;">Ringkasan Pesanan:</h3>
+                {% for item in cart_items %}
+                <div class="cart-item-row">
+                    <span>{{ item.product.name }} x{{ item.quantity }} porsi</span>
+                    <span style="font-weight: 700; color: #C4551A;">{{ item.total_price|rupiah }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <h3 style="color: #C4551A; margin: 30px 0 20px;">Informasi Pengiriman</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i> Nama Lengkap
+                    </label>
+                    <input type="text" name="customer_name" class="form-control" value="{{ user.get_full_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-phone"></i> No. Telepon
+                    </label>
+                    <input type="tel" name="customer_phone" class="form-control" value="{{ user.phone_number }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input type="email" name="customer_email" class="form-control" value="{{ user.email }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Tanggal Pengiriman
+                    </label>
+                    <input type="date" name="delivery_date" class="form-control" min="{{ min_date }}" required>
+                    <small style="color: #666;">Minimal pengiriman H+1</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i> Jam Pengiriman
+                    </label>
+                    <input type="time" name="delivery_time" class="form-control" value="10:00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> Lokasi Pengiriman
+                    </label>
+                    <input type="text" name="delivery_location" class="form-control" placeholder="Contoh: Palu, Sulawesi Tengah" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-home"></i> Alamat Lengkap
+                    </label>
+                    <textarea name="delivery_address" class="form-control form-textarea" placeholder="Masukkan alamat lengkap dengan patokan" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-truck"></i> Metode Pengiriman
+                    </label>
+                    <select name="delivery_method" class="form-control">
+                        <option value="delivery">Diantar (+ Rp 15.000)</option>
+                        <option value="pickup">Ambil Sendiri (Gratis)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-comment"></i> Catatan Tambahan (Opsional)
+                    </label>
+                    <textarea name="notes" class="form-control form-textarea" rows="3" placeholder="Contoh: Tolong antarkan jam 10 pagi tepat"></textarea>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>{{ cart.subtotal|rupiah }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ongkos Kirim</span>
+                        <span>Rp 15.000</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>TOTAL</span>
+                        <span>{{ cart.subtotal|add:15000|rupiah }}</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-checkout">
+                    <i class="fas fa-check-circle"></i> Buat Pesanan & Bayar
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,1017 @@
+/* ==========================================
+   CHECKOUT PAGE STYLES - COMPLETE
+========================================== */
+
+.checkout-section {
+    background: linear-gradient(135deg, #D4E8D4 0%, #B8D8B8 50%, #C8E0C8 100%); /* HIJAU PASTEL */
+    padding: 40px 0;
+    min-height: calc(100vh - 200px);
+}
+
+/* ==========================================
+   BACK BUTTON
+========================================== */
+.back-button-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 20px 40px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    color: #C4551A;
+    border: 2px solid #C4551A;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.btn-back:hover {
+    background: #C4551A;
+    color: white;
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(196, 85, 26, 0.2);
+}
+
+.btn-back i {
+    transition: transform 0.3s ease;
+}
+
+.btn-back:hover i {
+    transform: translateX(-3px);
+}
+
+.checkout-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+/* ==========================================
+   LEFT SIDE - PRODUCT DISPLAY
+========================================== */
+.checkout-left {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.product-image-container {
+    width: 100%;
+    height: 380px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.product-image-large {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.product-main-info {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.product-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2C1810;
+    margin-bottom: 15px;
+}
+
+.product-description {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.product-ingredients {
+    background: #FFF5F0;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #C4551A;
+}
+
+.product-ingredients strong {
+    color: #C4551A;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.product-ingredients p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ==========================================
+   RIGHT SIDE - ORDER FORM
+========================================== */
+.checkout-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ==========================================
+   PRICE OPTIONS (Horizontal)
+========================================== */
+.price-options {
+    display: flex;
+    gap: 12px;
+}
+
+.price-option {
+    flex: 1;
+    background: white;
+    border: 3px solid #FFE0D0;
+    border-radius: 15px;
+    padding: 15px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.price-option:hover {
+    border-color: #FFB380;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(196, 85, 26, 0.15);
+}
+
+.price-option.active {
+    background: #C4551A;
+    border-color: #C4551A;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(196, 85, 26, 0.3);
+}
+
+.price-badge {
+    font-size: 20px;
+    font-weight: 700;
+    color: #C4551A;
+    margin-bottom: 5px;
+}
+
+.price-option.active .price-badge {
+    color: white;
+}
+
+.price-badge span {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.price-range {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.price-option.active .price-range {
+    color: rgba(255,255,255,0.9);
+}
+
+/* ==========================================
+   ORDER FORM
+========================================== */
+.order-form {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #C4551A;
+    margin-bottom: 12px;
+}
+
+.form-label i {
+    font-size: 16px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #FAFAFA;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #C4551A;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(196, 85, 26, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 180px; /* DIPERBESAR dari 120px */
+    line-height: 1.6;
+}
+
+.form-hint {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* ==========================================
+   QUANTITY INPUT - IMPROVED
+========================================== */
+.quantity-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #FAFAFA;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.quantity-input-wrapper:focus-within {
+    border-color: #C4551A;
+    box-shadow: 0 0 0 3px rgba(196, 85, 26, 0.1);
+}
+
+.quantity-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background: white;
+    color: #C4551A;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quantity-btn:hover {
+    background: #C4551A;
+    color: white;
+}
+
+.quantity-btn:active {
+    transform: scale(0.95);
+}
+
+.quantity-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    padding: 0 10px;
+    font-family: 'Poppins', sans-serif;
+    height: 50px;
+}
+
+.quantity-input:focus {
+    outline: none;
+    background: white;
+}
+
+/* ==========================================
+   LOCATION INPUT
+========================================== */
+.location-input-wrapper {
+    position: relative;
+    display: flex;
+    gap: 0;
+}
+
+.location-input-wrapper .form-control {
+    flex: 1;
+    padding-right: 60px;
+}
+
+.location-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #C4551A;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.location-btn:hover {
+    background: #A84515;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.location-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.location-btn.loading {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ==========================================
+   ORDER SUMMARY
+========================================== */
+.order-summary {
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%);
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 10px;
+}
+
+.summary-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #C4551A;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.summary-divider {
+    height: 2px;
+    background: linear-gradient(to right, transparent, #FFD0B3, transparent);
+    margin: 15px 0;
+}
+
+.summary-row.summary-total {
+    font-size: 22px;
+    font-weight: 700;
+    color: #C4551A;
+    margin-top: 5px;
+}
+
+.summary-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-weight: 700;
+    color: #333;
+}
+
+.summary-row.summary-total .summary-value {
+    color: #C4551A;
+}
+
+/* ==========================================
+   ORDER BUTTON
+========================================== */
+.btn-order {
+    width: 100%;
+    background: linear-gradient(135deg, #4A7C59 0%, #5D9B6D 100%);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(74, 124, 89, 0.3);
+}
+
+.btn-order:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(74, 124, 89, 0.4);
+    background: linear-gradient(135deg, #5D9B6D 0%, #4A7C59 100%);
+}
+
+.btn-order:active {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   PRODUCT DETAIL PAGE STYLES
+========================================== */
+
+.product-detail-section {
+    background: linear-gradient(135deg, #D4E8D4 0%, #B8D8B8 50%, #C8E0C8 100%);
+    padding: 40px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.product-info-box {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.product-rating-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.stars {
+    color: #ff6b35;
+    font-size: 22px;
+}
+
+.rating-text {
+    font-size: 16px;
+    color: #666;
+    font-weight: 600;
+}
+
+.product-price {
+    font-size: 36px;
+    color: #C4551A;
+    font-weight: 700;
+    margin: 20px 0;
+}
+
+.product-meta {
+    display: flex;
+    gap: 25px;
+    margin: 25px 0;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: #FFF5F0;
+    border-radius: 10px;
+}
+
+.meta-item i {
+    color: #C4551A;
+    font-size: 18px;
+}
+
+.btn-order-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #4A7C59 0%, #5D9B6D 100%);
+    color: white;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(74, 124, 89, 0.3);
+}
+
+.btn-order-now:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(74, 124, 89, 0.4);
+}
+
+/* Reviews Section */
+.reviews-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.reviews-section {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.reviews-header {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2C1810;
+    margin-bottom: 30px;
+}
+
+.review-form-box {
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 40px;
+    border: 2px solid #FFD0B3;
+}
+
+.review-form-box h3 {
+    font-size: 20px;
+    color: #C4551A;
+    margin-bottom: 20px;
+}
+
+/* ==========================================
+   RATING STARS - FIXED (Putih → Kuning saat hover/klik)
+========================================== */
+.rating-stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    direction: ltr; /* Kiri ke kanan - normal */
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars label {
+    cursor: pointer;
+    font-size: 38px;
+    color: #E0E0E0; /* ABU-ABU TERANG / PUTIH - DEFAULT STATE */
+    transition: all 0.2s ease;
+    /* Stroke/outline untuk bintang - lebih kentara */
+    text-shadow: 
+        -1px -1px 0 #999,  
+        1px -1px 0 #999,
+        -1px 1px 0 #999,
+        1px 1px 0 #999,
+        0 2px 4px rgba(0,0,0,0.2);
+    -webkit-text-stroke: 1px #999; /* Stroke untuk Chrome/Safari */
+}
+
+/* Ketika input checked, bintang INI dan SEBELUMNYA jadi kuning */
+.rating-stars input:checked ~ label,
+.rating-stars input:checked + label {
+    color: #FFD700; /* KUNING EMAS */
+}
+
+/* Semua label sebelum yang checked */
+.rating-stars label:has(~ input:checked),
+.rating-stars input:checked ~ label {
+    color: #FFD700;
+}
+
+/* Hover effect - bintang yang di-hover dan sebelumnya jadi kuning */
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: #FFD700 !important;
+    transform: scale(1.15);
+    /* Stroke lebih gelap untuk bintang kuning */
+    -webkit-text-stroke: 1px #CC9900;
+    text-shadow: 
+        -1px -1px 0 #CC9900,  
+        1px -1px 0 #CC9900,
+        -1px 1px 0 #CC9900,
+        1px 1px 0 #CC9900,
+        0 2px 6px rgba(255,215,0,0.5);
+}
+
+/* Untuk browser yang tidak support :has() */
+.rating-stars input#star5:checked ~ label[for="star1"],
+.rating-stars input#star5:checked ~ label[for="star2"],
+.rating-stars input#star5:checked ~ label[for="star3"],
+.rating-stars input#star5:checked ~ label[for="star4"],
+.rating-stars input#star5:checked ~ label[for="star5"],
+.rating-stars input#star4:checked ~ label[for="star1"],
+.rating-stars input#star4:checked ~ label[for="star2"],
+.rating-stars input#star4:checked ~ label[for="star3"],
+.rating-stars input#star4:checked ~ label[for="star4"],
+.rating-stars input#star3:checked ~ label[for="star1"],
+.rating-stars input#star3:checked ~ label[for="star2"],
+.rating-stars input#star3:checked ~ label[for="star3"],
+.rating-stars input#star2:checked ~ label[for="star1"],
+.rating-stars input#star2:checked ~ label[for="star2"],
+.rating-stars input#star1:checked ~ label[for="star1"] {
+    color: #FFD700;
+}
+
+.btn-submit-review {
+    background: #C4551A;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn-submit-review:hover {
+    background: #A84515;
+    transform: translateY(-2px);
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-item {
+    background: #FAFAFA;
+    padding: 25px;
+    border-radius: 15px;
+    border-left: 4px solid #C4551A;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.review-user {
+    font-weight: 700;
+    font-size: 17px;
+    color: #333;
+}
+
+.review-stars-display {
+    color: #FFD700;
+    font-size: 18px;
+}
+
+.review-date {
+    color: #999;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.review-comment {
+    color: #666;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 16px;
+}
+
+.login-prompt {
+    background: #FFF5F0;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-prompt a {
+    color: #C4551A;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .back-button-wrapper {
+        padding: 0 30px 15px 30px;
+    }
+    
+    .checkout-container {
+        padding: 0 30px;
+        gap: 30px;
+    }
+    
+    .detail-container {
+        padding: 0 30px;
+        gap: 30px;
+    }
+    
+    .product-image-container {
+        height: 320px;
+    }
+    
+    .product-main-info, .product-info-box {
+        padding: 25px;
+    }
+    
+    .product-title {
+        font-size: 24px;
+    }
+    
+    .reviews-wrapper {
+        padding: 0 30px;
+    }
+    
+    .form-textarea {
+        min-height: 160px;
+    }
+    
+    .rating-stars label {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-section, .product-detail-section {
+        padding: 25px 0;
+    }
+    
+    .back-button-wrapper {
+        padding: 0 20px 15px 20px;
+    }
+    
+    .btn-back {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+    
+    .checkout-container, .detail-container {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+        gap: 25px;
+    }
+    
+    .product-image-container {
+        height: 280px;
+    }
+    
+    .product-main-info, .product-info-box {
+        padding: 20px;
+    }
+    
+    .product-title {
+        font-size: 22px;
+    }
+    
+    .product-description {
+        font-size: 14px;
+    }
+    
+    .product-price {
+        font-size: 28px;
+    }
+    
+    .price-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .price-option {
+        padding: 15px;
+    }
+    
+    .order-form {
+        padding: 25px 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-textarea {
+        min-height: 150px;
+    }
+    
+    .reviews-wrapper {
+        padding: 0 20px;
+    }
+    
+    .reviews-section {
+        padding: 25px 20px;
+    }
+    
+    .rating-stars label {
+        font-size: 34px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .checkout-section, .product-detail-section {
+        padding: 20px 0;
+    }
+    
+    .back-button-wrapper {
+        padding: 0 15px 12px 15px;
+    }
+    
+    .btn-back {
+        font-size: 12px;
+        padding: 8px 14px;
+    }
+    
+    .checkout-container, .detail-container {
+        padding: 0 15px;
+        gap: 20px;
+    }
+    
+    .product-image-container {
+        height: 220px;
+    }
+    
+    .product-main-info, .product-info-box {
+        padding: 18px;
+    }
+    
+    .product-title {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .product-description {
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+    
+    .product-price {
+        font-size: 24px;
+    }
+    
+    .product-ingredients {
+        padding: 15px;
+    }
+    
+    .product-ingredients strong {
+        font-size: 14px;
+    }
+    
+    .product-ingredients p {
+        font-size: 13px;
+    }
+    
+    .price-badge {
+        font-size: 18px;
+    }
+    
+    .order-form {
+        padding: 20px 15px;
+    }
+    
+    .form-label {
+        font-size: 14px;
+    }
+    
+    .form-control {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    
+    .form-textarea {
+        min-height: 140px;
+    }
+    
+    .quantity-btn {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .quantity-input {
+        font-size: 16px;
+        height: 45px;
+    }
+    
+    .order-summary {
+        padding: 20px;
+    }
+    
+    .summary-header {
+        font-size: 15px;
+    }
+    
+    .summary-row {
+        font-size: 13px;
+    }
+    
+    .summary-row.summary-total {
+        font-size: 19px;
+    }
+    
+    .btn-order {
+        font-size: 15px;
+        padding: 14px;
+    }
+    
+    .reviews-wrapper {
+        padding: 0 15px;
+    }
+    
+    .reviews-section {
+        padding: 20px 15px;
+    }
+    
+    .reviews-header {
+        font-size: 22px;
+    }
+    
+    .rating-stars {
+        gap: 6px;
+    }
+    
+    .rating-stars label {
+        font-size: 32px;
+    }
+}
+
+/* ==========================================
+   ANIMATIONS
+========================================== */
+.checkout-container, .detail-container {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state for location */
+.form-control.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

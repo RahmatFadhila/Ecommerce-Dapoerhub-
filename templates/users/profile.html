@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil Saya - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-info">
+            <img 
+                src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                alt="{{ user.username }}" 
+                class="profile-avatar"
+            >
+            <div class="profile-details">
+                <h1>{{ user.get_full_name|default:user.username }}</h1>
+                <p class="username">@{{ user.username }}</p>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Bergabung {{ user.date_joined|date:"d M Y" }}</span>
+                    </div>
+                    {% if user.review_set.count > 0 %}
+                    <div class="stat-item">
+                        <i class="fas fa-star"></i>
+                        <span>{{ user.review_set.count }} Review</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- Personal Info -->
+        <div class="profile-card">
+            <h2><i class="fas fa-user-circle"></i> Informasi Pribadi</h2>
+            
+            <div class="info-item">
+                <span class="info-label">Nama Lengkap</span>
+                <span class="info-value">{{ user.get_full_name|default:"Belum diisi" }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user.email|default:"Belum diisi" }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Nomor Telepon</span>
+                <span class="info-value">{{ user.phone_number|default:"Belum diisi" }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Tanggal Lahir</span>
+                <span class="info-value">
+                    {% if user.date_of_birth %}
+                        {{ user.date_of_birth|date:"d F Y" }}
+                    {% else %}
+                        Belum diisi
+                    {% endif %}
+                </span>
+            </div>
+            
+            {% if user.bio %}
+            <div class="info-item">
+                <span class="info-label">Bio</span>
+                <span class="info-value">{{ user.bio }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Address Info -->
+        <div class="profile-card">
+            <h2><i class="fas fa-map-marker-alt"></i> Alamat</h2>
+            
+            <div class="info-item">
+                <span class="info-label">Alamat Lengkap</span>
+                <span class="info-value">{{ user.address|default:"Belum diisi" }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Kota</span>
+                <span class="info-value">{{ user.city|default:"Belum diisi" }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Kode Pos</span>
+                <span class="info-value">{{ user.postal_code|default:"Belum diisi" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+        <a href="{% url 'edit_profile' %}" class="btn btn-orange">
+            <i class="fas fa-edit"></i> Edit Profil
+        </a>
+        <a href="{% url 'change_password' %}" class="btn btn-outline">
+            <i class="fas fa-key"></i> Ubah Password
+        </a>
+        {% if user.is_staff %}
+        <a href="{% url 'admin:index' %}" class="btn btn-outline">
+            <i class="fas fa-cog"></i> Dashboard Admin
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

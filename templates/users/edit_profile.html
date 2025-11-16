@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profil - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="edit-header">
+            <h1><i class="fas fa-user-edit"></i> Edit Profil</h1>
+            <p>Perbarui informasi profil Anda di sini</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Mohon perbaiki kesalahan di bawah ini</span>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Avatar Upload -->
+            <div class="avatar-upload">
+                <img 
+                    src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                    alt="Avatar" 
+                    class="avatar-preview"
+                    id="avatarPreview"
+                >
+                <div class="file-input-wrapper">
+                    <label for="id_profile_picture" class="file-input-label">
+                        <i class="fas fa-camera"></i> Pilih Foto Profil
+                    </label>
+                    {{ form.profile_picture }}
+                </div>
+                <p style="margin-top: 10px; color: var(--text-light); font-size: 13px;">
+                    Format: JPG, PNG, max 5MB
+                </p>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">
+                        <i class="fas fa-user"></i> Nama Depan
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                    <small style="color: var(--danger);">{{ form.first_name.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">
+                        <i class="fas fa-user"></i> Nama Belakang
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                    <small style="color: var(--danger);">{{ form.last_name.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form.email.id_for_label }}">
+                        <i class="fas fa-envelope"></i> Email
+                        <span class="required">*</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <small style="color: var(--danger);">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone_number.id_for_label }}">
+                        <i class="fas fa-phone"></i> Nomor Telepon
+                    </label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                    <small style="color: var(--danger);">{{ form.phone_number.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.date_of_birth.id_for_label }}">
+                        <i class="fas fa-calendar"></i> Tanggal Lahir
+                    </label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                    <small style="color: var(--danger);">{{ form.date_of_birth.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form.address.id_for_label }}">
+                        <i class="fas fa-map-marker-alt"></i> Alamat Lengkap
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <small style="color: var(--danger);">{{ form.address.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.city.id_for_label }}">
+                        <i class="fas fa-city"></i> Kota
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                    <small style="color: var(--danger);">{{ form.city.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.postal_code.id_for_label }}">
+                        <i class="fas fa-map-pin"></i> Kode Pos
+                    </label>
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}
+                    <small style="color: var(--danger);">{{ form.postal_code.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form.bio.id_for_label }}">
+                        <i class="fas fa-pen"></i> Bio
+                    </label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <small style="color: var(--danger);">{{ form.bio.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-orange">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+                <a href="{% url 'profile' %}" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Preview avatar before upload
+document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

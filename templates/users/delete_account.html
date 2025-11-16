@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hapus Akun - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="user-container">
+    <div class="user-card danger-card">
+        <!-- Header -->
+        <div class="user-header">
+            <div class="back-button">
+                <a href="{% url 'users:profile' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+            <h2 class="user-title text-danger">
+                <i class="fas fa-exclamation-triangle"></i> Hapus Akun
+            </h2>
+            <p class="user-subtitle">Tindakan ini tidak dapat dibatalkan!</p>
+        </div>
+
+        <!-- Warning Section -->
+        <div class="danger-warning">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="warning-content">
+                <h3>Peringatan!</h3>
+                <p>Anda akan menghapus akun <strong>{{ user.username }}</strong> secara permanen.</p>
+            </div>
+        </div>
+
+        <!-- Consequences -->
+        <div class="consequences-section">
+            <h4><i class="fas fa-info-circle"></i> Yang Akan Terjadi:</h4>
+            <ul class="consequences-list">
+                <li>
+                    <i class="fas fa-times-circle"></i>
+                    <strong>Data pribadi</strong> Anda akan dihapus permanen
+                </li>
+                <li>
+                    <i class="fas fa-times-circle"></i>
+                    <strong>Riwayat pesanan</strong> tidak dapat diakses lagi
+                </li>
+                <li>
+                    <i class="fas fa-times-circle"></i>
+                    <strong>Review & rating</strong> yang Anda berikan akan dihapus
+                </li>
+                <li>
+                    <i class="fas fa-times-circle"></i>
+                    <strong>Keranjang belanja</strong> akan hilang
+                </li>
+                <li>
+                    <i class="fas fa-times-circle"></i>
+                    <strong>Favorit & wishlist</strong> tidak dapat dipulihkan
+                </li>
+            </ul>
+        </div>
+
+        <!-- Confirmation Form -->
+        <div class="user-form-section">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="user-form" id="deleteForm">
+                {% csrf_token %}
+                
+                <!-- Confirmation Checkbox -->
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input 
+                            type="checkbox" 
+                            id="confirm_delete" 
+                            name="confirm_delete" 
+                            required
+                        >
+                        <span>Saya memahami konsekuensinya dan ingin menghapus akun saya</span>
+                    </label>
+                </div>
+
+                <!-- Password Confirmation -->
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Konfirmasi Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input"
+                        placeholder="Masukkan password untuk konfirmasi"
+                        required
+                    >
+                    <small class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        Masukkan password Anda untuk verifikasi
+                    </small>
+                </div>
+
+                <!-- Final Warning -->
+                <div class="final-warning">
+                    <p><strong>Catatan:</strong> Anda memiliki waktu 30 hari untuk membatalkan penghapusan akun sebelum data Anda benar-benar dihapus dari sistem kami.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-danger" id="deleteBtn" disabled>
+                        <i class="fas fa-trash-alt"></i> Ya, Hapus Akun Saya
+                    </button>
+                    <a href="{% url 'users:profile' %}" class="btn-secondary">
+                        <i class="fas fa-times"></i> Batalkan
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-section">
+            <h4><i class="fas fa-question-circle"></i> Butuh Bantuan?</h4>
+            <p>Jika Anda mengalami masalah dengan akun Anda, silakan <a href="#">hubungi customer service</a> kami sebelum menghapus akun.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enable delete button only when checkbox is checked
+document.getElementById('confirm_delete').addEventListener('change', function() {
+    document.getElementById('deleteBtn').disabled = !this.checked;
+});
+
+// Confirm before submit
+document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    if (!confirm('Apakah Anda YAKIN ingin menghapus akun? Tindakan ini TIDAK DAPAT DIBATALKAN!')) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

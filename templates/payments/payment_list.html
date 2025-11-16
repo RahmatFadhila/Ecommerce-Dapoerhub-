@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Riwayat Pembayaran - DapoerHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-list-section {
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+        min-height: 100vh;
+    }
+    .payment-list-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .payment-list-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .payment-list-header h1 {
+        color: #C4551A;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+    }
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    }
+    .payment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #FFE4CC;
+    }
+    .payment-status {
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-verifying { background: #cfe2ff; color: #084298; }
+    .status-success { background: #d1e7dd; color: #0f5132; }
+    .status-failed { background: #f8d7da; color: #842029; }
+    .payment-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #666;
+    }
+    .info-item i {
+        color: #C4551A;
+    }
+    .empty-payments {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 15px;
+    }
+    .empty-payments i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    .btn-detail {
+        background: #C4551A;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-detail:hover {
+        background: #a34415;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="payment-list-section">
+    <div class="payment-list-container">
+        <div class="payment-list-header">
+            <h1><i class="fas fa-credit-card"></i> Riwayat Pembayaran</h1>
+        </div>
+
+        {% if payments %}
+            {% for payment in payments %}
+            <div class="payment-card">
+                <div class="payment-header">
+                    <div>
+                        <strong style="color: #C4551A;">Order: {{ payment.order.order_number }}</strong>
+                    </div>
+                    <div class="payment-status status-{{ payment.status }}">
+                        {{ payment.get_status_display }}
+                    </div>
+                </div>
+
+                <div class="payment-info">
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>{{ payment.payment_date|date:"d M Y, H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-money-bill"></i>
+                        <span>{{ payment.amount|rupiah }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-wallet"></i>
+                        <span>{{ payment.get_payment_method_display }}</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; text-align: right;">
+                    <a href="{% url 'payment_detail' payment.order.id %}" class="btn-detail">
+                        <i class="fas fa-eye"></i> Lihat Detail
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-payments">
+                <i class="fas fa-credit-card"></i>
+                <h2>Belum Ada Pembayaran</h2>
+                <p>Belum ada riwayat pembayaran</p>
+                <a href="{% url 'menu' %}" style="background: #C4551A; color: white; padding: 15px 40px; border-radius: 10px; text-decoration: none; display: inline-block; margin-top: 20px; font-weight: 600;">
+                    <i class="fas fa-utensils"></i> Lihat Menu
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
